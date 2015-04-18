@@ -714,11 +714,9 @@ public class HorizontalPicker extends View {
     }
 
     private void ensureSelectedItemExists() {
-        int itemToSelect = getSelectedItem();
-        while (mLayouts.length <= itemToSelect && itemToSelect >= 0) {
-            itemToSelect -= 1;
+        if (mLayouts != null && mLayouts.length <= getSelectedItem()) {
+            setSelectedItem(Math.max(0, mLayouts.length - 1));
         }
-        setSelectedItem(itemToSelect);
     }
 
     @Override
