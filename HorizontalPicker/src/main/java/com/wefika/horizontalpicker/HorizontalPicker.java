@@ -683,6 +683,8 @@ public class HorizontalPicker extends View {
     public void setValues(CharSequence[] values) {
 
         if (mValues != values) {
+            final boolean numItemsChanged = mValues != null && mValues.length != values.length;
+
             mValues = values;
 
             if (mValues == null) {
@@ -691,8 +693,13 @@ public class HorizontalPicker extends View {
 
             mLayouts = new BoringLayout[mValues.length];
             for (int i = 0; i < mLayouts.length; i++) {
-                mLayouts[i] = new BoringLayout(mValues[i], mTextPaint, mItemWidth, Layout.Alignment.ALIGN_CENTER,
-                        1f, 1f, mBoringMetrics, false, mEllipsize, mItemWidth);
+                mLayouts[i] = new BoringLayout(mValues[i], mTextPaint, 0, Layout.Alignment.ALIGN_CENTER,
+                        1f, 1f, mBoringMetrics, false, mEllipsize, 0);
+            }
+
+            if (numItemsChanged) {
+                ensureSelectedItemExists();
+                remakeLayout();
             }
 
             // start marque only if has already been measured
@@ -704,6 +711,14 @@ public class HorizontalPicker extends View {
             invalidate();
         }
 
+    }
+
+    private void ensureSelectedItemExists() {
+        int itemToSelect = getSelectedItem();
+        while (mLayouts.length <= itemToSelect && itemToSelect >= 0) {
+            itemToSelect -= 1;
+        }
+        setSelectedItem(itemToSelect);
     }
 
     @Override
@@ -879,6 +894,9 @@ public class HorizontalPicker extends View {
     }
 
     private void startMarqueeIfNeeded() {
+        if (mLayouts == null) {
+            return;
+        }
 
         stopMarqueeIfNeeded();
 
